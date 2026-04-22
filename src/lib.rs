@@ -1,23 +1,75 @@
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 
+use colored::Colorize;
 
+#[derive(Debug)]
 pub struct Config {
-    search_text: String,
+    query: String,
     file_path: String,
     ignor_case: bool,
 }
 
 impl Config {
-    pub fn build(mut args: Vec<String>) -> () {
+    pub fn build(mut args: Vec<String>) -> Result<Self, &'static str> {
         args.remove(0); // Remove program path
-        
-        println!("{:?}", args);
-        // Self {
-            
-        // }
-        ()
+        let ignor_case = Self::ignore_case(&mut args);
+
+        if args.len() < 2 {
+            return Err("Argument not enough!");
+        }
+
+        let (query, file_path) = (args.remove(0), args.remove(0));
+        Ok(Self {
+            query,
+            file_path,
+            ignor_case,
+        })
     }
-    
-    fn is_ignore_case(args: Vec<String>) {
-        
+
+    fn ignore_case(args: &mut Vec<String>) -> bool {
+        for (i, arg) in args.iter().enumerate() {
+            if arg.contains("-i") {
+                args.remove(i);
+                return true;
+            }
+        }
+        false
     }
+}
+
+pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
+    let file_path = config.file_path;
+    if !Path::new(&file_path).exists() {
+        return Err("File not exists!");
+    }
+
+    let query = config.query;
+
+    let mut file = File::open(file_path).unwrap();
+    let mut file_content = String::new();
+    file.read_to_string(&mut file_content).unwrap();
+
+    let mut str_result: Vec<String> = Vec::new();
+
+    if config.ignor_case {
+        for line in file_content.lines() {
+            let search_lower = query.to_lowercase();
+            let line_lower = line.to_lowercase();
+
+            if line_lower.contains(&search_lower) {
+                let custom_line = line.replace(&query, &query.red());
+                str_result.push(custom_line);
+            }
+        }
+    } else {
+        for line in file_content.lines() {
+            if line.contains(&query) {
+                let highlighted = line.replace(&query, &query.green().to_string());
+                str_result.push(highlighted);
+            }
+        }
+    }
+    Ok(str_result)
 }
