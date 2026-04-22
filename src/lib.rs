@@ -47,9 +47,10 @@ pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
 
     let query = config.query;
 
-    let mut file = File::open(file_path).unwrap();
+    let mut file = File::open(file_path).map_err(|_| "Faild to open file")?;
     let mut file_content = String::new();
-    file.read_to_string(&mut file_content).unwrap();
+    file.read_to_string(&mut file_content)
+        .map_err(|_| "Faild to read file")?;
 
     let mut str_result: Vec<String> = Vec::new();
 
@@ -59,8 +60,12 @@ pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
             let line_lower = line.to_lowercase();
 
             if line_lower.contains(&search_lower) {
-                let custom_line = line.replace(&query, &query.red());
-                str_result.push(custom_line);
+                let highlighted = line_lower
+                    .find(&search_lower)
+                    .map(|i| line[..i].to_string() + &line[i..i+query.len()].green().to_string() + &line[i+query.len()..])
+                    .unwrap_or(line.to_string());
+
+                str_result.push(highlighted);
             }
         }
     } else {
