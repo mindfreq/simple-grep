@@ -1,20 +1,16 @@
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
-
 use colored::Colorize;
 
 #[derive(Debug)]
 pub struct Config {
-    query: String,
-    file_path: String,
-    ignor_case: bool,
+    pub query: String,
+    pub file_path: String,
+    pub ignore_case: bool,
 }
 
 impl Config {
     pub fn build(mut args: Vec<String>) -> Result<Self, &'static str> {
         args.remove(0); // Remove program path
-        let ignor_case = Self::ignore_case(&mut args);
+        let ignore_case = Self::ignore_case(&mut args);
 
         if args.len() < 2 {
             return Err("Argument not enough!");
@@ -24,7 +20,7 @@ impl Config {
         Ok(Self {
             query,
             file_path,
-            ignor_case,
+            ignore_case,
         })
     }
 
@@ -39,22 +35,12 @@ impl Config {
     }
 }
 
-pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
-    let file_path = config.file_path;
-    if !Path::new(&file_path).exists() {
-        return Err("File not exists!");
-    }
-
+pub fn search(config: Config, file_content: String) -> Result<Vec<String>, &'static str> {
     let query = config.query;
-
-    let mut file = File::open(file_path).map_err(|_| "Faild to open file")?;
-    let mut file_content = String::new();
-    file.read_to_string(&mut file_content)
-        .map_err(|_| "Faild to read file")?;
 
     let mut str_result: Vec<String> = Vec::new();
 
-    if config.ignor_case {
+    if config.ignore_case {
         for line in file_content.lines() {
             let search_lower = query.to_lowercase();
             let line_lower = line.to_lowercase();
@@ -62,7 +48,11 @@ pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
             if line_lower.contains(&search_lower) {
                 let highlighted = line_lower
                     .find(&search_lower)
-                    .map(|i| line[..i].to_string() + &line[i..i+query.len()].green().to_string() + &line[i+query.len()..])
+                    .map(|i| {
+                        line[..i].to_string()
+                            + &line[i..i + query.len()].green().to_string()
+                            + &line[i + query.len()..]
+                    })
                     .unwrap_or(line.to_string());
 
                 str_result.push(highlighted);
@@ -78,3 +68,5 @@ pub fn search(config: Config) -> Result<Vec<String>, &'static str> {
     }
     Ok(str_result)
 }
+
+
