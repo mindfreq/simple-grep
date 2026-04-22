@@ -16,9 +16,10 @@ fn main() {
 fn run(args: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::build(args)?;
     let file_path = &config.file_path;
-    // if !std::path::Path::new(&file_path).exists() {
-    //     return Err("File not exists!");
-    // }
+    
+    if !std::path::Path::new(&file_path).exists() {
+        return Err("File not exists!".into());
+    }
 
     let mut file = std::fs::File::open(file_path).map_err(|_| "Failed to open file")?;
     let mut file_content = String::new();
