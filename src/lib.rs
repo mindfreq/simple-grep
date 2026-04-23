@@ -69,4 +69,44 @@ pub fn search(config: Config, file_content: String) -> Result<Vec<String>, &'sta
     Ok(str_result)
 }
 
+#[cfg(test)]
+mod tests {
 
+    use super::*;
+
+    fn run_search(args: Vec<String>) -> Vec<String> {
+        let config = Config::build(args).unwrap();
+
+        let file_content = std::fs::read_to_string(&config.file_path)
+            .expect("Failed to read file");
+
+        let result = search(config, file_content).unwrap();
+        assert!(!result.is_empty(), "Expected matches but found none!");
+        result
+    }
+
+    #[test]
+    fn test_search() {
+        let args: Vec<String> = vec!["target/debug/m-grep", "Who", "poem.txt"]
+            .iter().map(|&x| x.into()).collect();
+        
+        let result = run_search(args);
+
+        for line in result {
+            println!("{line}");
+            assert_eq!(line, format!("I'm nobody! {} are you?", "Who".green()));
+        }
+    }
+
+    #[test]
+    fn test_search_ignorecase() {
+        let args: Vec<String> = vec!["target/debug/m-grep", "who", "poem.txt", "-i"]
+            .iter().map(|&x| x.into()).collect();
+        
+        let result = run_search(args);
+
+        for line in result {
+            assert_eq!(line, format!("I'm nobody! {} are you?", "Who".green()));
+        }
+    }
+}
