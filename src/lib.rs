@@ -8,9 +8,9 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(mut args: Vec<String>) -> Result<Self, &'static str> {
+    pub fn build(mut args: &mut Vec<String>) -> Result<Self, &'static str> {
         args.remove(0); // Remove program path
-        let ignore_case = Self::ignore_case(&mut args);
+        let ignore_case = Self::ignore_case(args);
 
         if args.len() < 2 {
             return Err("Argument not enough!");
@@ -74,7 +74,7 @@ mod tests {
 
     use super::*;
 
-    fn run_search(args: Vec<String>) -> Vec<String> {
+    fn run_search(args: &mut Vec<String>) -> Vec<String> {
         let config = Config::build(args).unwrap();
 
         let file_content = std::fs::read_to_string(&config.file_path)
@@ -87,10 +87,10 @@ mod tests {
 
     #[test]
     fn test_search() {
-        let args: Vec<String> = vec!["target/debug/m-grep", "Who", "poem.txt"]
+        let mut args: Vec<String> = vec!["target/debug/m-grep", "Who", "poem.txt"]
             .iter().map(|&x| x.into()).collect();
         
-        let result = run_search(args);
+        let result = run_search(&mut args);
 
         for line in result {
             println!("{line}");
@@ -100,10 +100,10 @@ mod tests {
 
     #[test]
     fn test_search_ignorecase() {
-        let args: Vec<String> = vec!["target/debug/m-grep", "who", "poem.txt", "-i"]
+        let mut args: Vec<String> = vec!["target/debug/m-grep", "who", "poem.txt", "-i"]
             .iter().map(|&x| x.into()).collect();
         
-        let result = run_search(args);
+        let result = run_search(&mut args);
 
         for line in result {
             assert_eq!(line, format!("I'm nobody! {} are you?", "Who".green()));

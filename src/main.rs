@@ -4,15 +4,15 @@ use std::process;
 use s_grep::{Config, search};
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let mut args: Vec<String> = std::env::args().collect();
     
-    if let Err(err) = run(args) {
+    if let Err(err) = run(&mut args) {
         eprintln!("{}: {}", "Error".red().bold(), err.to_string().red());
         process::exit(1);
     }
 }
 
-fn run(args: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+fn run(args: &mut Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::build(args)?;
     let file_path = &config.file_path;
 
