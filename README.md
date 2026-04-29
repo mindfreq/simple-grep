@@ -1,6 +1,4 @@
-# m-grep 🔍
-
-A simple grep-like tool written in Rust.
+`A simple grep-like tool written in Rust.`
 
 ## Installation
 
