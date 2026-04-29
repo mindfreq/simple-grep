@@ -1,7 +1,7 @@
 use colored::Colorize;
 use std::process;
 
-use m_grep::{Config, search};
+use s_grep::{Config, search};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
