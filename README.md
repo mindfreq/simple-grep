@@ -3,8 +3,8 @@
 ## Installation
 
 ```bash
-git https://codeberg.org/bux/m-grep.git
-cd m-grep
+git clone https://github.com/mindfreq/simple-grep.git
+cd simple-grep
 cargo build --release
 ```
 
@@ -12,15 +12,15 @@ cargo build --release
 
 ```bash
 # Basic search
-m-grep <query> <file>
+s-grep <query> <file>
 
 # Case-insensitive
-m-grep -i <query> <file>
+s-grep -i <query> <file>
 ```
 
 ### Examples
 
 ```bash
-m-grep "hello" src/main.rs
-m-grep -i "WHO" poem.txt
+s-grep "hello" src/main.rs
+s-grep -i "WHO" poem.txt
 ```
